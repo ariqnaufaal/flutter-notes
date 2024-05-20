@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:note_flutter/models/note.dart';
 
 class FirestoreDatabase {
   // current logged in user
@@ -9,15 +10,15 @@ class FirestoreDatabase {
   final CollectionReference notes = FirebaseFirestore.instance.collection('Notes');
 
   // create new note
-  Future<void> createNote(String title, String content) {
+  Future<void> createNote(Note note) {
     return notes.add({
       'userEmail': user!.email,
-      'title': title,
-      'content': content,
-      'category': '',
-      'imagePath': '',
-      'audioPath': '',
-      'sketchPath': '',
+      'title': note.title,
+      'content': note.content,
+      'category': note.category,
+      'imagePath': note.imagePath,
+      'audioPath': note.imagePath,
+      'sketchPath': note.sketchPath,
       'modifiedTime': Timestamp.now(),
     });
   }

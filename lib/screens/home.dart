@@ -229,7 +229,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       return Container();
                     }
                     return GestureDetector(
-                      onTap: () => _addOrEditNote(note as Note?),
+                      onTap: () => _addOrEditNote(),
                       child: Card(
                         margin: const EdgeInsets.only(bottom: 20),
                         color: getRandomColor(),
@@ -267,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ],
                                 ),
                               ),
-                              if (note['imagePath'] != "" || note['sketchPath'] != "")
+                              if (note['imagePath'] != null || note['sketchPath'] != null)
                                 SizedBox(
                                   width: 100,
                                   height: 100,

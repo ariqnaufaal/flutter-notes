@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:camera/camera.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart'; // Import the package
@@ -64,22 +65,48 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   Future<void> _saveNote() async {
-        // only post message if there is something in the textfield
-    if (_titleController.text.isNotEmpty && _contentController.text.isNotEmpty) {
-      String title = _titleController.text;
-      String content = _contentController.text;
-      database.createNote(title, content);
-
-      if (!mounted) return; // Checks `this.mounted`, not `context.mounted`.
-      Navigator.of(context).pop();
-      navigateAfterSuccessSaveNote(context);
-    }
-    else {      
+    // show loading circle
+    showDialog(
+      context: context, 
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+    // only save note if there is something in the textfield
+    if (_titleController.text.isEmpty && _contentController.text.isEmpty) {
       // pop loading circle
       Navigator.pop(context);
       displayMessageToUser("Please fill the required field.", context);
     }
+    else {
+      try {  
+        String title = _titleController.text;
+        String content = _contentController.text;
 
+        Note newNote = Note(
+          title: title,
+          content: content,
+          category: _selectedCategory,
+          modifiedTime: DateTime.now(),
+          imagePath: _imagePath,
+          audioPath: _audioPath, // Include audioPath in the new note
+          sketchPath: _sketchPath, // Include sketchPath in the new note
+        );
+
+        database.createNote(newNote);
+      
+        if (!mounted) return; // Checks `this.mounted`, not `context.mounted`.
+        Navigator.of(context).pop();
+        navigateAfterSuccessSaveNote(context);
+
+      } on FirebaseException catch (e) {
+        // pop loading circle
+        Navigator.pop(context);
+
+        // display error messsage to user
+        displayMessageToUser(e.code, context);
+      }
+    }
   }
 
   navigateAfterSuccessSaveNote(BuildContext context) {
