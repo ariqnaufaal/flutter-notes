@@ -17,7 +17,7 @@ class EditScreen extends StatefulWidget {
   final Note? note;
   final List<Note> notes;
 
-  const EditScreen({Key? key, this.note, required this.notes}) : super(key: key);
+  const EditScreen({super.key, this.note, required this.notes});
 
   @override
   State<EditScreen> createState() => _EditScreenState();

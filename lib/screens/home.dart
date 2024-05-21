@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
   
   final List<Note> notes;
 
-  HomeScreen({super.key, required this.notes});
+  const HomeScreen({super.key, required this.notes});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -205,6 +205,103 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                 }
 
+                if (snapshot.hasData) {
+                  List notesList = snapshot.data!.docs;
+
+                  return Expanded(
+                    child: ListView.builder(
+                      padding: const EdgeInsets.only(top: 10),
+                      itemCount: notesList.length,
+                      itemBuilder: (context, index) {
+                        final note = notesList[index];
+                        if (selectedCategory != 'All' && note['category'] != selectedCategory) {
+                          return Container();
+                        }
+                        return GestureDetector(
+                          onTap: () => _addOrEditNote(),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 20),
+                            color: getRandomColor(),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          note['title'],
+                                          style: const TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                            height: 1.5,
+                                          ),
+                                        ),
+                                        if (note['content'].isNotEmpty)
+                                          Text(
+                                            note['content'],
+                                            style: const TextStyle(
+                                              color: Colors.black,
+                                              fontWeight: FontWeight.normal,
+                                              fontSize: 14,
+                                              height: 1.5,
+                                            ),
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                  if (note['imagePath'] != null || note['sketchPath'] != null)
+                                    SizedBox(
+                                      width: 100,
+                                      height: 100,
+                                      child: Stack(
+                                        children: [
+                                          if (note['imagePath'] != null)
+                                            Positioned.fill(
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(8.0),
+                                                child: Image.file(
+                                                  File(note['imagePath']!),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                          if (note['sketchPath'] != null)
+                                            Positioned.fill(
+                                              child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(8.0),
+                                                child: Image.file(
+                                                  File(note['sketchPath']!),
+                                                  fit: BoxFit.cover,
+                                                ),
+                                              ),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                }
+                else {
+                  return const Center(child: Padding(
+                  padding: EdgeInsets.all(25),
+                  child: Text("No notes found."),
+                  ),
+                );
+                }
+                /*
               // get all notes by current user
               final notes = snapshot.data!.docs;
               debugPrint('Get data notes:  $notes');
@@ -219,104 +316,16 @@ class _HomeScreenState extends State<HomeScreen> {
                 );
               }
 
-              return Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.only(top: 10),
-                  itemCount: notes.length,
-                  itemBuilder: (context, index) {
-                    final note = notes[index];
-                    if (selectedCategory != 'All' && note['category'] != selectedCategory) {
-                      return Container();
-                    }
-                    return GestureDetector(
-                      onTap: () => _addOrEditNote(),
-                      child: Card(
-                        margin: const EdgeInsets.only(bottom: 20),
-                        color: getRandomColor(),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      note['title'],
-                                      style: const TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                                    if (note['content'].isNotEmpty)
-                                      Text(
-                                        note['content'],
-                                        style: const TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.normal,
-                                          fontSize: 14,
-                                          height: 1.5,
-                                        ),
-                                      ),
-                                  ],
-                                ),
-                              ),
-                              if (note['imagePath'] != null || note['sketchPath'] != null)
-                                SizedBox(
-                                  width: 100,
-                                  height: 100,
-                                  child: Stack(
-                                    children: [
-                                      if (note['imagePath'] != null)
-                                        Positioned.fill(
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(8.0),
-                                            child: Image.file(
-                                              File(note['imagePath']!),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                      if (note['sketchPath'] != null)
-                                        Positioned.fill(
-                                          child: ClipRRect(
-                                            borderRadius: BorderRadius.circular(8.0),
-                                            child: Image.file(
-                                              File(note['sketchPath']!),
-                                              fit: BoxFit.cover,
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              );
-            }),
-            /*
-            Expanded(
-              child: ListView.builder(
+              return ListView.builder(
                 padding: const EdgeInsets.only(top: 10),
                 itemCount: notes.length,
                 itemBuilder: (context, index) {
                   final note = notes[index];
-                  if (selectedCategory != 'All' && note.category != selectedCategory) {
+                  if (selectedCategory != 'All' && note['category'] != selectedCategory) {
                     return Container();
                   }
                   return GestureDetector(
-                    onTap: () => _addOrEditNote(note),
+                    onTap: () => _addOrEditNote(),
                     child: Card(
                       margin: const EdgeInsets.only(bottom: 20),
                       color: getRandomColor(),
@@ -333,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    note.title,
+                                    note['title'],
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -341,9 +350,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                       height: 1.5,
                                     ),
                                   ),
-                                  if (note.content.isNotEmpty)
+                                  if (note['content'].isNotEmpty)
                                     Text(
-                                      note.content,
+                                      note['content'],
                                       style: const TextStyle(
                                         color: Colors.black,
                                         fontWeight: FontWeight.normal,
@@ -354,28 +363,28 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ],
                               ),
                             ),
-                            if (note.imagePath != null || note.sketchPath != null)
+                            if (note['imagePath'] != null || note['sketchPath'] != null)
                               SizedBox(
                                 width: 100,
                                 height: 100,
                                 child: Stack(
                                   children: [
-                                    if (note.imagePath != null)
+                                    if (note['imagePath'] != null)
                                       Positioned.fill(
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(8.0),
                                           child: Image.file(
-                                            File(note.imagePath!),
+                                            File(note['imagePath']!),
                                             fit: BoxFit.cover,
                                           ),
                                         ),
                                       ),
-                                    if (note.sketchPath != null)
+                                    if (note['sketchPath'] != null)
                                       Positioned.fill(
                                         child: ClipRRect(
                                           borderRadius: BorderRadius.circular(8.0),
                                           child: Image.file(
-                                            File(note.sketchPath!),
+                                            File(note['sketchPath']!),
                                             fit: BoxFit.cover,
                                           ),
                                         ),
@@ -389,9 +398,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   );
                 },
-              ),
-            ),
+              );
             */
+            }),
           ],
         ),
       ),
